@@ -5,6 +5,7 @@ class User {
   final String? telegramChatId;
   final String role;
   final bool isBlocked;
+  final bool isPro;
 
   User({
     required this.id,
@@ -13,6 +14,7 @@ class User {
     this.telegramChatId,
     required this.role,
     required this.isBlocked,
+    this.isPro = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class User {
       telegramChatId: json['telegram_chat_id'],
       role: json['role'] ?? 'user',
       isBlocked: json['is_blocked'] ?? false,
+      isPro: json['is_pro'] ?? false,
     );
   }
 

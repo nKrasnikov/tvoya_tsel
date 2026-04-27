@@ -1,7 +1,8 @@
+import 'dart:html' if (dart.library.html) 'dart:html' as html;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user.dart';
-import 'api_provider.dart'; 
+import 'api_provider.dart';
 
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
 
@@ -27,7 +28,6 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final Ref _ref;
-
   AuthNotifier(this._ref) : super(AuthState.initial());
 
   Future<void> login(String email, String password) async {
@@ -41,9 +41,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final accessToken = response.data['access_token'];
       final refreshToken = response.data['refresh_token'];
       final user = User.fromJson(response.data['user']);
+
       await _ref.read(secureStorageProvider).write(key: 'access_token', value: accessToken);
       await _ref.read(secureStorageProvider).write(key: 'refresh_token', value: refreshToken);
+
       state = AuthState(isAuthenticated: true, user: user, isLoading: false);
+
     } catch (e) {
       state = AuthState(isAuthenticated: false, isLoading: false, error: e.toString());
     }
@@ -72,10 +75,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> checkAuth() async {
     final token = await _ref.read(secureStorageProvider).read(key: 'access_token');
-    if (token != null) {
-      // можно дополнительно проверить валидность через /users/me
-      state = AuthState(isAuthenticated: true);
-    } else {
+    if (token == null) {
+      state = AuthState(isAuthenticated: false);
+      return;
+    }
+    state = AuthState(isAuthenticated: true, isLoading: true);
+    try {
+      final apiClient = _ref.read(apiClientProvider);
+      final response = await apiClient.get('/users/me');
+      final user = User.fromJson(response.data);
+      state = AuthState(isAuthenticated: true, user: user, isLoading: false);
+    } catch (e) {
+      await logout();
       state = AuthState(isAuthenticated: false);
     }
   }
