@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/api_provider.dart';
+import '../providers/auth_provider.dart';
 
 class AdminPage extends ConsumerStatefulWidget {
   const AdminPage({super.key});
@@ -40,6 +41,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+  final user = ref.watch(authProvider).user;
+  if (user?.role != 'admin') {
+    return Scaffold(body: Center(child: Text('Доступ запрещён')));
+  } 
     return DefaultTabController(
       length: 2,
       child: Scaffold(

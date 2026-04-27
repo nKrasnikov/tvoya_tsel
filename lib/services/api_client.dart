@@ -1,13 +1,16 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config/app_config.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://localhost:8000/api/v1'; // из config
-  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
+  final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  ApiClient() {
-    _setupInterceptors();
+  ApiClient() : _dio = Dio(BaseOptions(baseUrl: AppConfig.apiBaseUrl)) {
+    if (!AppConfig.useMockApi) {
+      _setupInterceptors();
+    }
   }
 
   void _setupInterceptors() {
@@ -48,14 +51,266 @@ class ApiClient {
     }
   }
 
-  Future<Response> get(String path, {Map<String, dynamic>? queryParams}) =>
-      _dio.get(path, queryParameters: queryParams);
+  // ---- Общие методы с мок-реализацией при useMockApi ----
+  Future<Response> get(String path, {Map<String, dynamic>? queryParams}) async {
+    if (AppConfig.useMockApi) {
+      return _mockGet(path, queryParams: queryParams);
+    }
+    return _dio.get(path, queryParameters: queryParams);
+  }
 
-  Future<Response> post(String path, {dynamic data}) => _dio.post(path, data: data);
+  Future<Response> post(String path, {dynamic data}) async {
+    if (AppConfig.useMockApi) {
+      return _mockPost(path, data: data);
+    }
+    return _dio.post(path, data: data);
+  }
 
-  Future<Response> put(String path, {dynamic data}) => _dio.put(path, data: data);
+  Future<Response> put(String path, {dynamic data}) async {
+    if (AppConfig.useMockApi) {
+      return _mockPut(path, data: data);
+    }
+    return _dio.put(path, data: data);
+  }
 
-  Future<Response> patch(String path, {dynamic data}) => _dio.patch(path, data: data);
+  Future<Response> patch(String path, {dynamic data}) async {
+    if (AppConfig.useMockApi) {
+      return _mockPatch(path, data: data);
+    }
+    return _dio.patch(path, data: data);
+  }
 
-  Future<Response> delete(String path) => _dio.delete(path);
+  Future<Response> delete(String path) async {
+    if (AppConfig.useMockApi) {
+      return _mockDelete(path);
+    }
+    return _dio.delete(path);
+  }
+
+  // ==================== МОК-РЕАЛИЗАЦИИ ====================
+
+  Future<Response> _mockGet(String path, {Map<String, dynamic>? queryParams}) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (path == '/goals/') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockGoalsList(),
+        statusCode: 200,
+      );
+    }
+    if (path.startsWith('/goals/') && path != '/goals/') {
+      final id = int.parse(path.split('/').last);
+      final goal = _mockGoalsList().firstWhere((g) => g['id'] == id, orElse: () => {});
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: goal,
+        statusCode: 200,
+      );
+    }
+    if (path == '/users/me') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockCurrentUser(),
+        statusCode: 200,
+      );
+    }
+    if (path == '/admin/users') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockAdminUsers(),
+        statusCode: 200,
+      );
+    }
+    if (path == '/admin/llm-logs') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockLlmLogs(),
+        statusCode: 200,
+      );
+    }
+    return Response(
+      requestOptions: RequestOptions(path: path),
+      data: {'message': 'Mock GET $path'},
+      statusCode: 200,
+    );
+  }
+
+  Future<Response> _mockPost(String path, {dynamic data}) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (path == '/auth/login') {
+      final email = data['email'];
+      final password = data['password'];
+      if (email == 'admin@example.com' && password == 'admin123') {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {
+            'access_token': 'mock_admin_token',
+            'refresh_token': 'mock_refresh',
+            'user': _mockAdminUser(),
+          },
+          statusCode: 200,
+        );
+      } else if (email == 'user@example.com' && password == 'user123') {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {
+            'access_token': 'mock_user_token',
+            'refresh_token': 'mock_refresh',
+            'user': _mockCurrentUser(),
+          },
+          statusCode: 200,
+        );
+      } else {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {'detail': 'Неверный email или пароль'},
+          statusCode: 401,
+        );
+      }
+    }
+    if (path == '/auth/register') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: {'user': _mockCurrentUser()},
+        statusCode: 201,
+      );
+    }
+    if (path.startsWith('/goals/') && path.endsWith('/generate-steps')) {
+      final goalId = int.parse(path.split('/')[2]);
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockGeneratedSteps(goalId),
+        statusCode: 200,
+      );
+    }
+    if (path.startsWith('/goals/') && path.endsWith('/advice')) {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: {'advice': 'Это мок-совет. Постарайтесь выполнять по одному шагу в день!'},
+        statusCode: 200,
+      );
+    }
+    if (path == '/goals/') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: {'id': 999, 'title': data['title'], 'description': data['description'], 'progress': 0, 'steps': []},
+        statusCode: 201,
+      );
+    }
+    if (path == '/admin/users/1/block') {
+      return Response(requestOptions: RequestOptions(path: path), data: {'status': 'blocked'}, statusCode: 200);
+    }
+    return Response(
+      requestOptions: RequestOptions(path: path),
+      data: {'message': 'Mock POST success'},
+      statusCode: 200,
+    );
+  }
+
+  Future<Response> _mockPut(String path, {dynamic data}) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (path == '/users/me') {
+      return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Profile updated'}, statusCode: 200);
+    }
+    if (path.startsWith('/goals/')) {
+      return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Goal updated'}, statusCode: 200);
+    }
+    // Изменение пароля
+    if (path == '/users/me/password') {
+      return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Password changed'}, statusCode: 200);
+    }
+    return Response(requestOptions: RequestOptions(path: path), data: {'message': 'PUT mock'}, statusCode: 200);
+  }
+
+  Future<Response> _mockPatch(String path, {dynamic data}) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (path.startsWith('/steps/')) {
+      return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Step updated'}, statusCode: 200);
+    }
+    return Response(requestOptions: RequestOptions(path: path), data: {'message': 'PATCH mock'}, statusCode: 200);
+  }
+
+  Future<Response> _mockDelete(String path) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (path.startsWith('/goals/')) {
+      return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Goal deleted'}, statusCode: 200);
+    }
+    return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Deleted'}, statusCode: 200);
+  }
+
+  // ==================== МОК-ДАННЫЕ ====================
+
+  List<Map<String, dynamic>> _mockGoalsList() {
+    return [
+      {
+        'id': 1,
+        'title': 'Выучить Flutter',
+        'description': 'Освоить разработку кроссплатформенных приложений',
+        'deadline': '2026-06-01T00:00:00',
+        'priority': 2,
+        'progress': 30,
+        'is_archived': false,
+        'steps': [
+          {'id': 101, 'goal_id': 1, 'text': 'Просмотреть документацию', 'is_completed': true, 'order': 0},
+          {'id': 102, 'goal_id': 1, 'text': 'Сделать todo-приложение', 'is_completed': false, 'order': 1},
+          {'id': 103, 'goal_id': 1, 'text': 'Изучить продвинутые темы', 'is_completed': false, 'order': 2},
+        ],
+      },
+      {
+        'id': 2,
+        'title': 'Написать диплом',
+        'description': 'Завершить ВКР к маю',
+        'deadline': '2026-05-15T00:00:00',
+        'priority': 3,
+        'progress': 10,
+        'is_archived': false,
+        'steps': [
+          {'id': 201, 'goal_id': 2, 'text': 'Собрать литературу', 'is_completed': true, 'order': 0},
+          {'id': 202, 'goal_id': 2, 'text': 'Написать введение', 'is_completed': false, 'order': 1},
+        ],
+      },
+    ];
+  }
+
+  Map<String, dynamic> _mockCurrentUser() {
+    return {
+      'id': 42,
+      'email': 'user@example.com',
+      'full_name': 'Тестовый Пользователь',
+      'role': 'user',
+      'is_blocked': false,
+    };
+  }
+
+  Map<String, dynamic> _mockAdminUser() {
+    return {
+      'id': 1,
+      'email': 'admin@example.com',
+      'full_name': 'Администратор',
+      'role': 'admin',
+      'is_blocked': false,
+    };
+  }
+
+  List<Map<String, dynamic>> _mockGeneratedSteps(int goalId) {
+    return [
+      {'id': 1001, 'goal_id': goalId, 'text': 'Сгенерированный шаг 1', 'is_completed': false, 'order': 0},
+      {'id': 1002, 'goal_id': goalId, 'text': 'Сгенерированный шаг 2', 'is_completed': false, 'order': 1},
+      {'id': 1003, 'goal_id': goalId, 'text': 'Сгенерированный шаг 3', 'is_completed': false, 'order': 2},
+    ];
+  }
+
+  List<Map<String, dynamic>> _mockAdminUsers() {
+    return [
+      {'id': 1, 'email': 'admin@example.com', 'full_name': 'Администратор', 'role': 'admin', 'is_blocked': false},
+      {'id': 42, 'email': 'user@example.com', 'full_name': 'Тестовый Пользователь', 'role': 'user', 'is_blocked': false},
+    ];
+  }
+
+  List<Map<String, dynamic>> _mockLlmLogs() {
+    return [
+      {'request_type': 'generate_steps', 'prompt': 'Разбей цель...', 'duration_ms': 1200, 'success': true},
+      {'request_type': 'advice', 'prompt': 'Как не прокрастинировать?', 'duration_ms': 800, 'success': true},
+    ];
+  }
 }

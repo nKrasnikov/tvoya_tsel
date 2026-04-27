@@ -34,20 +34,15 @@ class GoalsNotifier extends StateNotifier<List<Goal>> {
   Future<void> generateSteps(int goalId) async {
     final apiClient = _ref.read(apiClientProvider);
     final response = await apiClient.post('/goals/$goalId/generate-steps');
-    final newSteps = (response.data as List).map((s) => Step.fromJson(s)).toList();
-    final goalIndex = state.indexWhere((g) => g.id == goalId);
-    if (goalIndex != -1) {
-      final updatedGoal = Goal(
-        id: state[goalIndex].id,
-        title: state[goalIndex].title,
-        description: state[goalIndex].description,
-        deadline: state[goalIndex].deadline,
-        priority: state[goalIndex].priority,
-        progress: state[goalIndex].progress,
-        isArchived: state[goalIndex].isArchived,
-        steps: newSteps,
-      );
-      state = [...state]..[goalIndex] = updatedGoal;
+    final newSteps = (response.data as List).map((s) => GoalStep.fromJson(s)).toList();
+    final index = state.indexWhere((g) => g.id == goalId);
+    if (index != -1) {
+      final updatedGoal = state[index].copyWith(steps: newSteps);
+      state = [...state]..[index] = updatedGoal;
     }
   }
 }
+
+// Добавим метод copyWith в модель Goal (если нет)
+// В lib/models/goal.dart нужно добавить:
+// Goal copyWith({List<GoalStep>? steps}) => Goal( ... steps: steps ?? this.steps ...);

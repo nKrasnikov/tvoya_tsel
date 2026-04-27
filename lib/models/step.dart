@@ -1,11 +1,11 @@
-class Step {
+class GoalStep {
   final int id;
   final int goalId;
   final String text;
   final bool isCompleted;
   final int order;
 
-  Step({
+  GoalStep({
     required this.id,
     required this.goalId,
     required this.text,
@@ -13,8 +13,8 @@ class Step {
     required this.order,
   });
 
-  factory Step.fromJson(Map<String, dynamic> json) {
-    return Step(
+  factory GoalStep.fromJson(Map<String, dynamic> json) {
+    return GoalStep(
       id: json['id'],
       goalId: json['goal_id'],
       text: json['text'],

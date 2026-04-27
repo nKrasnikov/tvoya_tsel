@@ -8,7 +8,7 @@ class Goal {
   final int priority;
   final int progress;
   final bool isArchived;
-  final List<Step> steps;
+  final List<GoalStep> steps;
 
   Goal({
     required this.id,
@@ -30,7 +30,30 @@ class Goal {
       priority: json['priority'] ?? 1,
       progress: json['progress'] ?? 0,
       isArchived: json['is_archived'] ?? false,
-      steps: (json['steps'] as List?)?.map((s) => Step.fromJson(s)).toList() ?? [],
+      steps: (json['steps'] as List?)?.map((s) => GoalStep.fromJson(s)).toList() ?? [],
+    );
+  }
+
+  // Копирование с изменением полей
+  Goal copyWith({
+    int? id,
+    String? title,
+    String? description,
+    DateTime? deadline,
+    int? priority,
+    int? progress,
+    bool? isArchived,
+    List<GoalStep>? steps,
+  }) {
+    return Goal(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      deadline: deadline ?? this.deadline,
+      priority: priority ?? this.priority,
+      progress: progress ?? this.progress,
+      isArchived: isArchived ?? this.isArchived,
+      steps: steps ?? this.steps,
     );
   }
 

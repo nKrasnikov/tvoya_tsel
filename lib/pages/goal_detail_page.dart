@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/goal_provider.dart';
 import '../providers/goals_provider.dart';
 import '../widgets/step_list.dart';
 import '../widgets/llm_chat.dart';
+import '../widgets/progress_bar.dart';
 
 class GoalDetailPage extends ConsumerStatefulWidget {
   final int goalId;
@@ -16,21 +18,34 @@ class _GoalDetailPageState extends ConsumerState<GoalDetailPage> {
   @override
   void initState() {
     super.initState();
-    _refreshGoal();
+    _loadGoal();
   }
 
-  Future<void> _refreshGoal() async {
-    await ref.read(goalsProvider.notifier).fetchGoals(); // упрощённо: лучше отдельный провайдер для одной цели
+  Future<void> _loadGoal() async {
+    await ref.read(goalProvider.notifier).fetchGoal(widget.goalId);
   }
 
-  void _generateSteps() async {
+  Future<void> _generateSteps() async {
+    // Вызываем генерацию через goalsProvider (или напрямую через API)
     await ref.read(goalsProvider.notifier).generateSteps(widget.goalId);
+    // После генерации перезагружаем цель, чтобы показать новые шаги
+    await _loadGoal();
+  }
+
+  Future<void> _toggleStep(int stepId, bool isCompleted) async {
+    await ref.read(goalProvider.notifier).toggleStep(stepId, isCompleted);
+    // Обновляем список целей на дашборде, чтобы изменился прогресс
+    await ref.read(goalsProvider.notifier).fetchGoals();
+    setState(() {}); // Перерисовка страницы
   }
 
   @override
   Widget build(BuildContext context) {
-    final goals = ref.watch(goalsProvider);
-    final goal = goals.firstWhere((g) => g.id == widget.goalId, orElse: () => throw Exception('Goal not found'));
+    final goal = ref.watch(goalProvider);
+    if (goal == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(goal.title)),
       body: SingleChildScrollView(
@@ -40,7 +55,13 @@ class _GoalDetailPageState extends ConsumerState<GoalDetailPage> {
           children: [
             Text(goal.description ?? '', style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 8),
-            LinearProgressIndicator(value: goal.progress / 100),
+            Row(
+              children: [
+                Expanded(child: ProgressBar(progress: goal.progress)),
+                const SizedBox(width: 8),
+                Text('${goal.progress}%'),
+              ],
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -50,15 +71,16 @@ class _GoalDetailPageState extends ConsumerState<GoalDetailPage> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Добавить шаг вручную (можно реализовать диалог)
+                  },
                   child: const Text('Добавить шаг'),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            StepList(steps: goal.steps, onToggle: (stepId, isCompleted) {
-              // вызывать API для обновления шага
-            }),
+            const Text('Шаги:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            StepList(steps: goal.steps, onToggle: _toggleStep),
             const SizedBox(height: 24),
             const Text('ИИ-советник', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             LLMChat(goalId: goal.id),

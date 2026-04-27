@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/step.dart' as Model; // алиас для модели Step
+import '../models/step.dart'; // GoalStep
 
 class StepList extends StatelessWidget {
-  final List<Model.Step> steps;
+  final List<GoalStep> steps;
   final Function(int, bool) onToggle;
 
   const StepList({super.key, required this.steps, required this.onToggle});
