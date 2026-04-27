@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import 'register_page.dart';
-import 'dashboard_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -16,13 +15,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _passwordController = TextEditingController();
 
   void _login() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    await ref.read(authProvider.notifier).login(email, password);
-    if (ref.read(authProvider).isAuthenticated) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardPage()));
-    }
-  }
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
+  await ref.read(authProvider.notifier).login(email, password);
+}
 
   @override
   Widget build(BuildContext context) {

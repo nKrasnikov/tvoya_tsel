@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/auth_provider.dart';
-import 'providers/theme_provider.dart';
+import 'pages/home_page.dart';
 import 'pages/login_page.dart';
-import 'pages/dashboard_page.dart';
-import 'pages/register_page.dart';
-import 'pages/profile_page.dart';
-import 'pages/admin_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -29,23 +25,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final themeMode = ref.watch(themeProvider);
     return MaterialApp(
       title: 'Твоя цель',
-      themeMode: themeMode,
-      theme: ThemeData.light(useMaterial3: true).copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => authState.isAuthenticated ? const DashboardPage() : const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/profile': (context) => const ProfilePage(),
-        '/admin': (context) => const AdminPage(),
-      },
+      home: authState.isAuthenticated ? const HomePage() : const LoginPage(),
     );
   }
 }
