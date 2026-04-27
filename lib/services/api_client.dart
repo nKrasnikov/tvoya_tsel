@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/app_config.dart';
@@ -91,6 +90,52 @@ class ApiClient {
 
   Future<Response> _mockGet(String path, {Map<String, dynamic>? queryParams}) async {
     await Future.delayed(const Duration(milliseconds: 400));
+
+    final storage = const FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+    final isAdmin = accessToken?.contains('admin') ?? false;
+
+    // Эндпоинт текущего пользователя
+    if (path == '/users/me') {
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: isAdmin ? _mockAdminUser() : _mockCurrentUser(),
+        statusCode: 200,
+      );
+    }
+
+    // Админские эндпоинты
+    if (path == '/admin/users') {
+      if (!isAdmin) {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {'detail': 'Forbidden'},
+          statusCode: 403,
+        );
+      }
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockAdminUsers(),
+        statusCode: 200,
+      );
+    }
+
+    if (path == '/admin/llm-logs') {
+      if (!isAdmin) {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          data: {'detail': 'Forbidden'},
+          statusCode: 403,
+        );
+      }
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        data: _mockLlmLogs(),
+        statusCode: 200,
+      );
+    }
+
+    // Список целей
     if (path == '/goals/') {
       return Response(
         requestOptions: RequestOptions(path: path),
@@ -98,6 +143,8 @@ class ApiClient {
         statusCode: 200,
       );
     }
+
+    // Конкретная цель по ID
     if (path.startsWith('/goals/') && path != '/goals/') {
       final id = int.parse(path.split('/').last);
       final goal = _mockGoalsList().firstWhere((g) => g['id'] == id, orElse: () => {});
@@ -107,30 +154,11 @@ class ApiClient {
         statusCode: 200,
       );
     }
-    if (path == '/users/me') {
-      return Response(
-        requestOptions: RequestOptions(path: path),
-        data: _mockCurrentUser(),
-        statusCode: 200,
-      );
-    }
-    if (path == '/admin/users') {
-      return Response(
-        requestOptions: RequestOptions(path: path),
-        data: _mockAdminUsers(),
-        statusCode: 200,
-      );
-    }
-    if (path == '/admin/llm-logs') {
-      return Response(
-        requestOptions: RequestOptions(path: path),
-        data: _mockLlmLogs(),
-        statusCode: 200,
-      );
-    }
+
+    // Для всех остальных неизвестных GET-запросов возвращаем заглушку
     return Response(
       requestOptions: RequestOptions(path: path),
-      data: {'message': 'Mock GET $path'},
+      data: {'message': 'Mock GET $path not implemented'},
       statusCode: 200,
     );
   }
