@@ -10,7 +10,7 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     YANDEX_GPT_API_KEY: str = os.getenv("YANDEX_GPT_API_KEY", "")
-    YANDEX_FOLDER_ID: str = os.getenv("YANDEX_FOLDER_ID", "b1giaber8geti5ev12ka")
+    YANDEX_FOLDER_ID: str = os.getenv("YANDEX_FOLDER_ID", "")
     YANDEX_GPT_URL: str = os.getenv("YANDEX_GPT_URL", "https://llm.api.cloud.yandex.net/v1/chat/completions")
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
