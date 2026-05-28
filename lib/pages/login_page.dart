@@ -14,11 +14,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _login() async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
-  await ref.read(authProvider.notifier).login(email, password);
-}
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Заполните все поля')),
+      );
+      return;
+    }
+    await ref.read(authProvider.notifier).login(email, password);
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated) {
+      if (mounted) Navigator.pushReplacementNamed(context, '/');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +46,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Пароль')),
             const SizedBox(height: 24),
             if (authState.isLoading) const CircularProgressIndicator(),
-            if (authState.error != null) Text(authState.error!, style: const TextStyle(color: Colors.red)),
-            ElevatedButton(onPressed: _login, child: const Text('Войти')),
+            if (authState.error != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(authState.error!, style: const TextStyle(color: Colors.red)),
+              ),
+            ElevatedButton(onPressed: authState.isLoading ? null : _login, child: const Text('Войти')),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPage())),
               child: const Text('Нет аккаунта? Зарегистрируйтесь'),

@@ -1,7 +1,8 @@
-import 'dart:html' if (dart.library.html) 'dart:html' as html;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dio/dio.dart';
 import '../models/user.dart';
+import '../services/api_client.dart';
 import 'api_provider.dart';
 
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
@@ -28,10 +29,11 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final Ref _ref;
+
   AuthNotifier(this._ref) : super(AuthState.initial());
 
   Future<void> login(String email, String password) async {
-    state = AuthState(isAuthenticated: false, isLoading: true);
+    state = AuthState(isAuthenticated: false, isLoading: true, error: null);
     try {
       final apiClient = _ref.read(apiClientProvider);
       final response = await apiClient.post('/auth/login', data: {
@@ -40,20 +42,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
       });
       final accessToken = response.data['access_token'];
       final refreshToken = response.data['refresh_token'];
-      final user = User.fromJson(response.data['user']);
-
       await _ref.read(secureStorageProvider).write(key: 'access_token', value: accessToken);
       await _ref.read(secureStorageProvider).write(key: 'refresh_token', value: refreshToken);
 
-      state = AuthState(isAuthenticated: true, user: user, isLoading: false);
+      // Получаем данные пользователя отдельным запросом
+      final userResponse = await apiClient.get('/users/me');
+      final user = User.fromJson(userResponse.data);
 
+      state = AuthState(isAuthenticated: true, user: user, isLoading: false);
     } catch (e) {
-      state = AuthState(isAuthenticated: false, isLoading: false, error: e.toString());
+      String errorMessage = 'Ошибка входа';
+      if (e is DioException && e.response?.statusCode == 401) {
+        errorMessage = 'Неверный email или пароль';
+      }
+      state = AuthState(isAuthenticated: false, isLoading: false, error: errorMessage);
     }
   }
 
   Future<void> register(String email, String password, String fullName) async {
-    state = AuthState(isAuthenticated: false, isLoading: true);
+    state = AuthState(isAuthenticated: false, isLoading: true, error: null);
     try {
       final apiClient = _ref.read(apiClientProvider);
       await apiClient.post('/auth/register', data: {
@@ -61,9 +68,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         'password': password,
         'full_name': fullName,
       });
-      await login(email, password);
+      state = AuthState(isAuthenticated: false, isLoading: false);
     } catch (e) {
-      state = AuthState(isAuthenticated: false, isLoading: false, error: e.toString());
+      String errorMessage = 'Ошибка регистрации';
+      if (e is DioException && e.response?.statusCode == 400) {
+        errorMessage = 'Пользователь с таким email уже существует';
+      }
+      state = AuthState(isAuthenticated: false, isLoading: false, error: errorMessage);
     }
   }
 
@@ -89,5 +100,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await logout();
       state = AuthState(isAuthenticated: false);
     }
+  }
+
+  Future<void> fetchUser() async {
+    final apiClient = _ref.read(apiClientProvider);
+    final response = await apiClient.get('/users/me');
+    final user = User.fromJson(response.data);
+    state = AuthState(isAuthenticated: true, user: user, isLoading: false);
   }
 }

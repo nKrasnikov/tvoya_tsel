@@ -5,7 +5,13 @@ class User {
   final String? telegramChatId;
   final String role;
   final bool isBlocked;
-  final bool isPro;
+  final bool reminderEnabled;
+  final String reminderTime;
+  final DateTime? birthDate;      // новое
+  final String? gender;           // новое (male/female/other)
+  final String? city;             // новое
+  final String? bio;              // новое
+  final String? interests;        // новое
 
   User({
     required this.id,
@@ -14,7 +20,13 @@ class User {
     this.telegramChatId,
     required this.role,
     required this.isBlocked,
-    this.isPro = false,
+    required this.reminderEnabled,
+    required this.reminderTime,
+    this.birthDate,
+    this.gender,
+    this.city,
+    this.bio,
+    this.interests,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -25,7 +37,13 @@ class User {
       telegramChatId: json['telegram_chat_id'],
       role: json['role'] ?? 'user',
       isBlocked: json['is_blocked'] ?? false,
-      isPro: json['is_pro'] ?? false,
+      reminderEnabled: json['reminder_enabled'] ?? true,
+      reminderTime: json['reminder_time'] ?? '09:00',
+      birthDate: json['birth_date'] != null ? DateTime.parse(json['birth_date']) : null,
+      gender: json['gender'],
+      city: json['city'],
+      bio: json['bio'],
+      interests: json['interests'],
     );
   }
 
@@ -37,6 +55,13 @@ class User {
       'telegram_chat_id': telegramChatId,
       'role': role,
       'is_blocked': isBlocked,
+      'reminder_enabled': reminderEnabled,
+      'reminder_time': reminderTime,
+      'birth_date': birthDate?.toIso8601String().split('T').first,
+      'gender': gender,
+      'city': city,
+      'bio': bio,
+      'interests': interests,
     };
   }
 }

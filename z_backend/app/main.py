@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, users, goals, steps, admin
 from .database import engine, Base
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # Создаём таблицы (только для разработки, потом перейти на миграции)
 Base.metadata.create_all(bind=engine)
@@ -10,7 +12,7 @@ app = FastAPI(title="Твоя цель API", version="1.0")
 
 # Разрешённые источники для CORS
 origins = [
-    "http://localhost:3000",   # фронтенд на Flutter
+    "http://localhost:65146",   # фронтенд на Flutter
     "http://localhost:8000",   # сам бэкенд
 ]
 

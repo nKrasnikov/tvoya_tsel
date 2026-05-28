@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.5.3
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.5.1          # Управление состоянием
   dio: ^5.4.3                       # HTTP-клиент

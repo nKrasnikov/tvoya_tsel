@@ -14,14 +14,23 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _register() async {
+  Future<void> _register() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-    if (name.isEmpty || email.isEmpty || password.isEmpty) return;
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Заполните все поля')),
+      );
+      return;
+    }
     await ref.read(authProvider.notifier).register(email, password, name);
-    if (ref.read(authProvider).isAuthenticated) {
-      Navigator.pop(context); // возврат на логин, но можно сразу на дашборд
+    final authState = ref.read(authProvider);
+    if (authState.error == null && !authState.isLoading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Регистрация успешна! Теперь войдите.')),
+      );
+      Navigator.pop(context);
     }
   }
 
@@ -42,8 +51,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             TextField(controller: _passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Пароль')),
             const SizedBox(height: 24),
             if (authState.isLoading) const CircularProgressIndicator(),
-            if (authState.error != null) Text(authState.error!, style: const TextStyle(color: Colors.red)),
-            ElevatedButton(onPressed: _register, child: const Text('Зарегистрироваться')),
+            if (authState.error != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(authState.error!, style: const TextStyle(color: Colors.red)),
+              ),
+            ElevatedButton(onPressed: authState.isLoading ? null : _register, child: const Text('Зарегистрироваться')),
           ],
         ),
       ),

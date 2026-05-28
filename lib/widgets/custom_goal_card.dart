@@ -26,6 +26,13 @@ class CustomGoalCard extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  if (goal.priority == 3)
+                    const Icon(Icons.flag, color: Colors.red, size: 16),
+                  if (goal.priority == 2)
+                    const Icon(Icons.flag, color: Colors.orange, size: 16),
+                  if (goal.priority == 1)
+                    const Icon(Icons.flag_outlined, color: Colors.grey, size: 16),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       goal.title,
@@ -34,8 +41,6 @@ class CustomGoalCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (isOverdue)
-                    Icon(Icons.warning_amber_rounded, color: Colors.red, size: 18),
                 ],
               ),
               const SizedBox(height: 8),

@@ -1,6 +1,6 @@
 #app/schemas.py - Pydantic схемы
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List
 
 # Auth
@@ -27,11 +27,21 @@ class UserOut(BaseModel):
     telegram_chat_id: Optional[str] = None
     reminder_enabled: bool
     reminder_time: str
+    birth_date: Optional[date] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    bio: Optional[str] = None
+    interests: Optional[str] = None
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     reminder_enabled: Optional[bool] = None
     reminder_time: Optional[str] = None
+    birth_date: Optional[date] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    bio: Optional[str] = None
+    interests: Optional[str] = None
 
 class ChangePassword(BaseModel):
     old_password: str
@@ -41,8 +51,8 @@ class ChangePassword(BaseModel):
 class StepBase(BaseModel):
     text: str
 
-class StepCreate(StepBase):
-    pass
+class StepCreate(BaseModel):
+    text: str
 
 class StepOut(StepBase):
     id: int
