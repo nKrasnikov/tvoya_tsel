@@ -1,5 +1,5 @@
 #app/models.py - модели SQLAlchemy
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import Date, Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -22,7 +22,12 @@ class User(Base):
     reminder_enabled = Column(Boolean, default=True)
     reminder_time = Column(String(5), default="09:00")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+    birth_date = Column(Date, nullable=True)
+    gender = Column(String(20), nullable=True)  # male, female, other
+    city = Column(String(100), nullable=True)
+    bio = Column(Text, nullable=True)
+    interests = Column(Text, nullable=True)  # можно хранить как JSON или строку
+
     goals = relationship("Goal", back_populates="user", cascade="all, delete-orphan")
     llm_logs = relationship("LLMLog", back_populates="user", cascade="all, delete-orphan")
 

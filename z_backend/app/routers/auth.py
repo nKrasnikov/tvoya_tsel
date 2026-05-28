@@ -32,7 +32,19 @@ def login(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Пользователь заблокирован")
     access_token = auth.create_access_token(data={"sub": str(user.id), "role": user.role})
     refresh_token = auth.create_refresh_token(data={"sub": str(user.id)})
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role,
+            "is_blocked": user.is_blocked,
+            "telegram_chat_id": user.telegram_chat_id,
+        }
+}
 
 @router.post("/refresh", response_model=schemas.Token)
 def refresh(refresh_token: str, db: Session = Depends(get_db)):

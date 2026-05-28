@@ -23,6 +23,71 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
+
+# =============================================
+# Фронтенд (Flutter / Dart)
+# =============================================
+.dart_tool/
+.packages
+build/
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+ios/
+android/
+windows/
+linux/
+macos/
+web/
+test/.test_coverage.dart
+coverage/
+
+# =============================================
+# Бэкенд (Python / FastAPI)
+# =============================================
+z_backend/__pycache__/
+z_backend/*.py[cod]
+z_backend/*$py.class
+z_backend/.Python
+z_backend/venv/
+z_backend/env/
+z_backend/.venv
+z_backend/.env
+z_backend/.env.local
+z_backend/.env.*.local
+z_backend/*.db
+z_backend/*.sqlite3
+z_backend/.pytest_cache/
+z_backend/.mypy_cache/
+z_backend/.coverage
+z_backend/htmlcov/
+z_backend/.tox/
+z_backend/dist/
+z_backend/build/
+z_backend/*.egg-info/
+z_backend/.eggs/
+z_backend/alembic/versions/*.pyc
+z_backend/logs/
+z_backend/instance/
+
+# =============================================
+# Docker
+# =============================================
+*.pid
+docker-compose.override.yml
+docker-compose.*.yml
+!.dockerignore
+
+# =============================================
+# Секреты и конфигурации окружения
+# =============================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.crt
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id

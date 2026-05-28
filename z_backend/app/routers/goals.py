@@ -69,6 +69,39 @@ async def generate_steps(goal_id: int, db: Session = Depends(get_db), current_us
     update_goal_progress(goal_id, db)
     return new_steps
 
+@router.post("/{goal_id}/steps", response_model=schemas.StepOut)
+def create_step(
+    goal_id: int,
+    step: schemas.StepCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Проверяем, что цель существует и принадлежит текущему пользователю
+    goal = db.query(models.Goal).filter(
+        models.Goal.id == goal_id,
+        models.Goal.user_id == current_user.id
+    ).first()
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    
+    # Определяем порядковый номер нового шага
+    order = db.query(models.Step).filter(models.Step.goal_id == goal_id).count()
+    
+    new_step = models.Step(
+        goal_id=goal_id,
+        text=step.text,
+        order=order,
+        is_completed=False
+    )
+    db.add(new_step)
+    db.commit()
+    db.refresh(new_step)
+    
+    # Пересчитываем прогресс цели
+    update_goal_progress(goal_id, db)
+    
+    return new_step
+
 @router.post("/{goal_id}/advice", response_model=schemas.AdviceResponse)
 async def get_advice(goal_id: int, request: schemas.AdviceRequest, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     goal = db.query(models.Goal).filter(models.Goal.id == goal_id, models.Goal.user_id == current_user.id).first()
