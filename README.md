@@ -1,17 +1,69 @@
-# tvoya_tsel
+# Твоя цель
 
-A new Flutter project.
+**Веб-приложение для достижения личных целей с использованием больших языковых моделей**
 
-## Getting Started
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-3.22+-blue)](https://flutter.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green)](https://fastapi.tiangolo.com)
+[![Docker](https://img.shields.io/badge/Docker-27+-blue)](https://docker.com)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 📖 О проекте
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**«Твоя цель»** — это веб-приложение, которое помогает пользователям ставить личные цели, автоматически получать пошаговый план достижения (декомпозицию) через **Yandex GPT**, отслеживать прогресс и получать мотивационные советы в режиме чата от ИИ-ассистента.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Основные возможности
+
+- 🔐 Регистрация и аутентификация (JWT, access/refresh токены)
+- 🎯 Создание, редактирование, удаление целей (название, описание, дедлайн, приоритет)
+- 🤖 **Автоматическая генерация шагов** через Yandex GPT (разбиение цели на конкретные измеримые шаги)
+- ✅ Отметка шагов как выполненных — автоматический пересчёт прогресса (%)
+- 💬 **ИИ-советник** — чат с LLM, отвечающий на вопросы пользователя с учётом контекста цели
+- 📊 Дашборд с фильтрацией и поиском целей
+- 👤 Профиль пользователя (личные данные, смена пароля)
+- 🌓 Тёмная / светлая тема интерфейса
+- 🛠️ Админ-панель: управление пользователями (блокировка/разблокировка), просмотр логов вызовов LLM
+- 🐳 Контейнеризация Docker Compose
+- 🧪 Модульное, интеграционное, функциональное и нагрузочное тестирование
+
+---
+
+## 🧰 Технологический стек
+
+### Бэкенд
+- **Язык:** Python 3.11+
+- **Фреймворк:** FastAPI
+- **ORM:** SQLAlchemy
+- **База данных:** SQLite (файл `tvoya_tsel.db`)
+- **Кэш:** Redis (кэширование ответов LLM)
+- **Аутентификация:** JWT (python-jose), bcrypt
+- **Интеграция с LLM:** Yandex GPT API (модель `yandexgpt/lite`)
+
+### Фронтенд
+- **Язык:** Dart
+- **Фреймворк:** Flutter Web
+- **Управление состоянием:** Riverpod
+- **HTTP-клиент:** Dio (с перехватчиками для JWT и обновления токенов)
+- **Хранение токенов:** flutter_secure_storage
+- **Маршрутизация:** go_router
+
+### Инфраструктура и тестирование
+- **Контейнеризация:** Docker + Docker Compose
+- **Модульное тестирование:** pytest (Python), flutter_test (Dart)
+- **Нагрузочное тестирование:** k6
+
+---
+
+## 🚀 Запуск проекта
+
+### Требования
+- Docker и Docker Compose
+- Python 3.11+ (если запуск без Docker)
+- Flutter 3.22+ (для фронтенда)
+- Аккаунт в Yandex Cloud с API-ключом для Yandex GPT
+
+### 1. Клонирование репозитория
+```bash
+git clone https://gitlab.com/your-repo/tvoya-tsel.git
+cd tvoya-tsel
