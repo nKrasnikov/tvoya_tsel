@@ -1,11 +1,11 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date
 from typing import Optional, List
 
 # Auth
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., max_length=72)
     full_name: str
 
 class UserLogin(BaseModel):

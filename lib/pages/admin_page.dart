@@ -77,7 +77,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                   child: ListTile(
                     title: Text(log['request_type'] ?? 'unknown'),
                     subtitle: Text('Промпт: ${log['prompt']?.substring(0, 50)}... длительность: ${log['duration_ms']} мс'),
-                    trailing: Text(log['success'] ? '1' : '0'),
+                    trailing: Text(log['success'] ? 'Successed' : 'Failed'),
                   ),
                 );
               },
