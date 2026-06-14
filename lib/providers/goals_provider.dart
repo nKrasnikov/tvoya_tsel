@@ -42,7 +42,3 @@ class GoalsNotifier extends StateNotifier<List<Goal>> {
     }
   }
 }
-
-// Добавим метод copyWith в модель Goal (если нет)
-// В lib/models/goal.dart нужно добавить:
-// Goal copyWith({List<GoalStep>? steps}) => Goal( ... steps: steps ?? this.steps ...);

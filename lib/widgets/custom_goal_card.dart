@@ -9,7 +9,7 @@ class CustomGoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isOverdue = goal.deadline != null && goal.deadline!.isBefore(DateTime.now()) && goal.progress < 100;
+    //bool isOverdue = goal.deadline != null && goal.deadline!.isBefore(DateTime.now()) && goal.progress < 100;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -25,8 +25,6 @@ def update_me(
         current_user.reminder_enabled = update.reminder_enabled
     if update.reminder_time is not None:
         current_user.reminder_time = update.reminder_time
-    
-    # Новые поля профиля
     if update.birth_date is not None:
         current_user.birth_date = update.birth_date
     if update.gender is not None:

@@ -50,7 +50,6 @@ class ApiClient {
     }
   }
 
-  // ---- Общие методы с мок-реализацией при useMockApi ----
   Future<Response> get(String path, {Map<String, dynamic>? queryParams}) async {
     if (AppConfig.useMockApi) {
       return _mockGet(path, queryParams: queryParams);
@@ -85,8 +84,6 @@ class ApiClient {
     }
     return _dio.delete(path);
   }
-
-  // ==================== МОК-РЕАЛИЗАЦИИ ====================
 
   Future<Response> _mockGet(String path, {Map<String, dynamic>? queryParams}) async {
     await Future.delayed(const Duration(milliseconds: 400));
@@ -155,7 +152,6 @@ class ApiClient {
       );
     }
 
-    // Для всех остальных неизвестных GET-запросов возвращаем заглушку
     return Response(
       requestOptions: RequestOptions(path: path),
       data: {'message': 'Mock GET $path not implemented'},
@@ -265,8 +261,6 @@ class ApiClient {
     }
     return Response(requestOptions: RequestOptions(path: path), data: {'message': 'Deleted'}, statusCode: 200);
   }
-
-  // ==================== МОК-ДАННЫЕ ====================
 
   List<Map<String, dynamic>> _mockGoalsList() {
     return [

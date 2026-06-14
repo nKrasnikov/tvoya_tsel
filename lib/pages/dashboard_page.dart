@@ -158,7 +158,6 @@ class _FilterChips extends StatelessWidget {
   }
 }
 
-// Используем ConsumerWidget для доступа к ref
 class _AddGoalCard extends ConsumerWidget {
   const _AddGoalCard();
 

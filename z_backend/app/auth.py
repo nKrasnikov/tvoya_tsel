@@ -1,4 +1,3 @@
-#app/auth.py - JWT и хеширование паролей
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -7,13 +6,11 @@ import hashlib
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-import hashlib
-
 def get_password_hash(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    return pwd_context.hash(password)
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return get_password_hash(plain) == hashed
+    return pwd_context.verify(plain, hashed)
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()

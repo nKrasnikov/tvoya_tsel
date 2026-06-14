@@ -5,15 +5,14 @@ from .database import engine, Base
 import logging
 logging.basicConfig(level=logging.INFO)
 
-# Создаём таблицы (только для разработки, потом перейти на миграции)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Твоя цель API", version="1.0")
 
 # Разрешённые источники для CORS
 origins = [
-    "http://localhost:65146",   # фронтенд на Flutter
-    "http://localhost:8000",   # сам бэкенд
+    "http://localhost:65146",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(

@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import '../models/user.dart';
-import '../services/api_client.dart';
 import 'api_provider.dart';
 
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
