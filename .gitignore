@@ -27,6 +27,7 @@ migrate_working_dir/
 # =============================================
 # Фронтенд (Flutter / Dart)
 # =============================================
+.metadata
 .dart_tool/
 .packages
 build/
@@ -45,6 +46,7 @@ coverage/
 # =============================================
 # Бэкенд (Python / FastAPI)
 # =============================================
+z_backend/docker-compose.yml
 z_backend/get-pip.py
 z_backend/app/__pycache__/
 z_backend/*.py[cod]
