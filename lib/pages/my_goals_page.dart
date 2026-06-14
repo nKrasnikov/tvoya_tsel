@@ -1,4 +1,3 @@
-// lib/pages/my_goals_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/goals_provider.dart';

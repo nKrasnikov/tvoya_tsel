@@ -20,7 +20,6 @@ class GoalNotifier extends StateNotifier<Goal?> {
   Future<void> toggleStep(int stepId, bool isCompleted) async {
     if (state == null) return;
     final apiClient = _ref.read(apiClientProvider);
-    // Отправляем запрос на сервер (мок его обработает)
     await apiClient.patch('/steps/$stepId', data: {'is_completed': isCompleted});
     
     // Обновляем локальное состояние шагов
@@ -40,7 +39,7 @@ class GoalNotifier extends StateNotifier<Goal?> {
     // Пересчитываем прогресс цели
     final newProgress = _recalculateProgress(updatedSteps);
     
-    // Обновляем состояние (используем copyWith)
+    // Обновляем состояние
     state = state!.copyWith(steps: updatedSteps, progress: newProgress);
   }
 

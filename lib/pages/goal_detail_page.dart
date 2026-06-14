@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/api_provider.dart';
 import '../providers/goals_provider.dart';
 import '../models/goal.dart';
-import '../models/step.dart';
 import '../widgets/step_list.dart';
 import '../widgets/llm_chat.dart';
 import '../widgets/progress_bar.dart';

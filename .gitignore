@@ -45,7 +45,8 @@ coverage/
 # =============================================
 # Бэкенд (Python / FastAPI)
 # =============================================
-z_backend/__pycache__/
+z_backend/get-pip.py
+z_backend/app/__pycache__/
 z_backend/*.py[cod]
 z_backend/*$py.class
 z_backend/.Python

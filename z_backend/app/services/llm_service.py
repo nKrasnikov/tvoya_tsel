@@ -36,7 +36,7 @@ async def _call_yandex_gpt(prompt: str) -> str:
         return text
 
 async def generate_steps_for_goal(title: str, description: str) -> List[str]:
-    # Кэширование (опционально)
+    # Кэширование
     cache_key = f"llm:steps:{hashlib.md5(f'{title}|{description}'.encode()).hexdigest()}"
     cached = await redis_client.get(cache_key)
     if cached:

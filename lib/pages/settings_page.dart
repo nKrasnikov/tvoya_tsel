@@ -1,4 +1,3 @@
-// lib/pages/settings_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
@@ -26,7 +25,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Future<void> _loadSettings() async {
     final user = ref.read(authProvider).user;
     if (user != null) {
-      // Здесь потом загрузим из API, пока используем заглушки
       setState(() {
         _reminderEnabled = true;
         _reminderTime = const TimeOfDay(hour: 9, minute: 0);

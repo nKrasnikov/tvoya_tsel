@@ -1,4 +1,3 @@
-#app/schemas.py - Pydantic схемы
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, date
 from typing import Optional, List
